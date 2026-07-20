@@ -1,0 +1,83 @@
+import { IconShield, IconGauge, IconWrench, IconDroplet } from "./icons/BlueprintIcons";
+import ImagePlate from "./common/ImagePlate";
+import Reveal from "./common/Reveal";
+import SplitHeading from "./common/SplitHeading";
+
+const REASONS = [
+  {
+    icon: IconShield,
+    title: "Jedan tim, cijeli projekt",
+    text: "Gradnja, oprema i servis pod istim krovom — bez podizvođača koji prebacuju odgovornost jedni na druge.",
+  },
+  {
+    icon: IconGauge,
+    title: "Precizna tehnička izvedba",
+    text: "Svaki sustav filtracije, grijanja i automatike dimenzioniramo prema veličini bazena i stvarnoj namjeni, ne po katalogu.",
+  },
+  {
+    icon: IconWrench,
+    title: "Podrška tijekom cijele sezone",
+    text: "Servisni tim dostupan za intervencije, dijagnostiku kvarova i nabavu originalnih rezervnih dijelova.",
+  },
+  {
+    icon: IconDroplet,
+    title: "Dugoročna briga o vodi",
+    text: "Ugovori o redovitom održavanju drže vašu vodu bistrom i uravnoteženom bez da vi o tome razmišljate.",
+  },
+];
+
+export default function WhyUs() {
+  return (
+    <section id="filozofija" className="scroll-mt-20 bg-travertino py-28 lg:py-40">
+      <div className="mx-auto max-w-[1500px] px-6 lg:px-12">
+        <div className="max-w-xl">
+          <Reveal>
+            <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-cemento">Filozofija</p>
+          </Reveal>
+          <SplitHeading
+            as="h2"
+            className="mt-6 font-display text-4xl font-light leading-[1.08] tracking-tight text-ink sm:text-5xl"
+            lines={["Povjerenje se gradi,", { text: "sloj po sloj.", className: "italic" }]}
+          />
+          <Reveal delay={0.2}>
+            <p className="mt-7 max-w-sm text-[15px] leading-relaxed text-ink/60">
+              Bazen je dugoročna investicija u dom. Naš posao ne završava punjenjem vode —
+              tek tada počinje odnos na koji se možete osloniti.
+            </p>
+          </Reveal>
+        </div>
+
+        <div className="mt-16 grid gap-12 lg:grid-cols-[0.6fr_1.4fr] lg:gap-12">
+          <Reveal y={20} className="relative aspect-[4/5] overflow-hidden lg:sticky lg:top-32 lg:self-start">
+            <ImagePlate
+              src="/images/about/philosophy.jpg"
+              ratio=""
+              className="absolute inset-0 h-full w-full"
+              alt="Poslijepodne uz bazen, Tempus Pool referenca"
+              caption="ŽIVOT UZ BAZEN"
+              dark={false}
+            />
+          </Reveal>
+
+          <div className="divide-y divide-ink/10 border-t border-ink/10">
+            {REASONS.map(({ icon: Icon, title, text }, i) => (
+              <Reveal
+                key={title}
+                delay={i * 0.08}
+                className={`flex flex-col gap-5 py-10 sm:flex-row sm:items-start sm:gap-10 ${
+                  i % 2 === 1 ? "sm:pl-14" : ""
+                }`}
+              >
+                <Icon className="h-8 w-8 shrink-0 text-acqua" />
+                <div>
+                  <h3 className="font-display text-xl font-normal text-ink">{title}</h3>
+                  <p className="mt-2.5 max-w-md text-[15px] leading-relaxed text-ink/55">{text}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

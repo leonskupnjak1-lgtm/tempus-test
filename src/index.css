@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+@theme {
+  /* Istrian coast, after dark — deep water, travertine, sand, one turquoise accent */
+  --color-notte: #0a1815;
+  --color-notte-soft: #12211d;
+  --color-notte-line: #f2eee31f;
+  --color-travertino: #f2eee3;
+  --color-travertino-soft: #eae3d2;
+  --color-sabbia: #dccfaf;
+  --color-cemento: #b4afa2;
+  --color-ink: #171d1a;
+  --color-acqua: #2fbfa3;
+  --color-acqua-soft: #bfe9df;
+
+  --font-display: "Fraunces", "Manrope", serif;
+  --font-body: "Manrope", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --animate-drift: drift 26s ease-in-out infinite;
+  --animate-draw: draw 2.4s ease forwards;
+  --animate-ripple: ripple 9s ease-in-out infinite;
+
+  /* shadcn/ui semantic tokens, aliased onto the palette above rather than a
+     second parallel color system — keeps copy-pasted shadcn primitives
+     on-brand without hand-editing their class names */
+  --color-background: var(--color-notte);
+  --color-foreground: var(--color-travertino);
+  --color-card: var(--color-notte-soft);
+  --color-card-foreground: var(--color-travertino);
+  --color-primary: var(--color-acqua);
+  --color-primary-foreground: var(--color-notte);
+  --color-secondary: var(--color-notte-soft);
+  --color-secondary-foreground: var(--color-travertino);
+  --color-muted: var(--color-notte-soft);
+  --color-muted-foreground: #a8a29a;
+  --color-accent: var(--color-acqua-soft);
+  --color-accent-foreground: var(--color-notte);
+  --color-destructive: #c0524a;
+  --color-destructive-foreground: var(--color-travertino);
+  --color-border: var(--color-notte-line);
+  --color-input: var(--color-notte-line);
+  --color-ring: var(--color-acqua);
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-3%, 4%) scale(1.06); }
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes ripple {
+  0%, 100% { transform: translateX(0) scaleY(1); }
+  50% { transform: translateX(1.5%) scaleY(1.4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-travertino);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-acqua);
+  color: var(--color-notte);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-acqua);
+  outline-offset: 3px;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Fine paper-grain texture, used sparingly over dark and image-plate surfaces */
+.grain {
+  position: relative;
+  isolation: isolate;
+}
+
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 180px 180px;
+}
