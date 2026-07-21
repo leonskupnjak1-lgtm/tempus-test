@@ -10,12 +10,15 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { motion, AnimatePresence } from "motion/react";
 import Reveal from "./common/Reveal";
 import WaterBackdrop from "./common/WaterBackdrop";
+import { IconPin, IconDroplet, IconRuler, IconClock, IconChevron } from "./icons/BlueprintIcons";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const EASE = "cubic-bezier(0.16,1,0.3,1)";
+const EASE_ARR = [0.16, 1, 0.3, 1];
 
 const FEATURED = [
   {
@@ -266,7 +269,7 @@ function CinematicFeatured() {
   }
 
   return (
-    <section id="projekti" ref={sectionRef} className="relative h-screen w-full overflow-hidden bg-notte text-travertino">
+    <section ref={sectionRef} className="relative hidden h-screen w-full overflow-hidden bg-notte text-travertino lg:block">
       <WaterBackdrop />
 
       <div className="relative z-10 mx-auto flex h-full w-full max-w-[1500px] flex-col justify-center px-6 lg:px-12">
@@ -334,10 +337,181 @@ function CinematicFeatured() {
   );
 }
 
+// Dedicated phone/tablet experience — a single swipeable card per project
+// instead of the desktop's pinned scroll-scrub. Purpose-built for touch:
+// one large image up top, a calm reading column beneath it, then a vertical
+// stack of spec cards, and an explicit "01/06" pager so it's obvious there's
+// more to swipe through.
+const MOBILE_SPECS = (p) => [
+  { icon: IconPin, label: "Lokacija", value: p.place },
+  { icon: IconDroplet, label: "Tip bazena", value: p.poolType },
+  { icon: IconRuler, label: "Dimenzije", value: p.dimensions },
+  { icon: IconClock, label: "Godina", value: p.year },
+];
+
+const mobileContainerVariants = {
+  initial: {},
+  animate: { transition: { staggerChildren: 0.08, delayChildren: 0.04 } },
+  exit: { transition: { staggerChildren: 0.03 } },
+};
+
+const mobileImageVariants = {
+  initial: { opacity: 0, scale: 1.03 },
+  animate: { opacity: 1, scale: 1, transition: { duration: 0.65, ease: EASE_ARR } },
+  exit: { opacity: 0, scale: 1.02, transition: { duration: 0.35, ease: EASE_ARR } },
+};
+
+const mobileTextVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE_ARR } },
+  exit: { opacity: 0, y: -10, transition: { duration: 0.3, ease: EASE_ARR } },
+};
+
+const mobileCardVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE_ARR } },
+  exit: { opacity: 0, transition: { duration: 0.2 } },
+};
+
+function MobileFeatured() {
+  const [index, setIndex] = useState(0);
+  const touchStartX = useRef(null);
+  const touchStartY = useRef(null);
+
+  const p = FEATURED[index];
+  const canPrev = index > 0;
+  const canNext = index < FRAMES - 1;
+
+  function goPrev() {
+    if (canPrev) setIndex((i) => i - 1);
+  }
+  function goNext() {
+    if (canNext) setIndex((i) => i + 1);
+  }
+
+  function handleTouchStart(e) {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  }
+  function handleTouchEnd(e) {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx < 0) goNext();
+      else goPrev();
+    }
+    touchStartX.current = null;
+    touchStartY.current = null;
+  }
+
+  return (
+    <section className="relative w-full overflow-hidden bg-notte px-5 pb-20 pt-20 text-travertino lg:hidden">
+      <WaterBackdrop />
+      <div className="relative z-10">
+        <Reveal className="mb-8 flex items-center gap-3">
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-acqua">Izdvojeni projekt</span>
+          <span className="h-px flex-1 bg-travertino/10" />
+        </Reveal>
+
+        <div onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={p.key}
+              variants={mobileContainerVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <motion.div
+                variants={mobileImageVariants}
+                className="relative w-full overflow-hidden rounded-[26px] shadow-[0_40px_100px_-30px_rgba(0,0,0,0.75),0_0_0_1px_rgba(242,238,227,0.06)]"
+                style={{ aspectRatio: "16 / 10" }}
+              >
+                <img
+                  src={p.image}
+                  alt={`${p.title}, ${p.place}`}
+                  loading={index === 0 ? "eager" : "lazy"}
+                  className="h-full w-full object-cover"
+                  style={{ objectPosition: p.focal }}
+                />
+                <div
+                  className="pointer-events-none absolute inset-0"
+                  style={{ background: "linear-gradient(0deg, rgba(10,24,21,0.55) 0%, transparent 32%, transparent 78%, rgba(10,24,21,0.2) 100%)" }}
+                />
+              </motion.div>
+
+              <motion.div variants={mobileTextVariants} className="mt-8">
+                <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-travertino/40">{p.title}</span>
+                <h3 className="mt-4 text-balance font-display text-[28px] font-light leading-[1.2] text-travertino">
+                  {p.heading}
+                </h3>
+                <p className="mt-4 text-[15px] leading-[1.7] text-travertino/60">{p.description}</p>
+              </motion.div>
+
+              <motion.dl variants={mobileContainerVariants} className="mt-10 flex flex-col gap-3">
+                {MOBILE_SPECS(p).map(({ icon: Icon, label, value }) => (
+                  <motion.div
+                    key={label}
+                    variants={mobileCardVariants}
+                    className="flex items-center gap-4 rounded-2xl border border-travertino/10 bg-travertino/[0.04] px-5 py-4 backdrop-blur-sm"
+                  >
+                    <Icon className="h-5 w-5 shrink-0 text-acqua" />
+                    <div>
+                      <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-travertino/40">{label}</dt>
+                      <dd className="mt-1 font-display text-[17px] font-light leading-snug text-travertino">{value}</dd>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.dl>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        <div className="mt-10 flex flex-col items-center gap-3 border-t border-travertino/10 pt-7">
+          <div className="flex items-center gap-6 font-mono text-[12px] tabular-nums text-travertino/50">
+            <button
+              type="button"
+              onClick={goPrev}
+              disabled={!canPrev}
+              aria-label="Prethodni projekt"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-travertino/15 text-travertino transition-opacity disabled:opacity-25"
+            >
+              <IconChevron className="h-4 w-4 rotate-180" />
+            </button>
+            <span>
+              {pad(index + 1)} / {pad(FRAMES)}
+            </span>
+            <button
+              type="button"
+              onClick={goNext}
+              disabled={!canNext}
+              aria-label="Sljedeći projekt"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-travertino/15 text-travertino transition-opacity disabled:opacity-25"
+            >
+              <IconChevron className="h-4 w-4" />
+            </button>
+          </div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-travertino/30">
+            Prijeđite prstom za sljedeći projekt
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Projects() {
   const [reduced] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
 
-  return reduced ? <StaticFeaturedList /> : <CinematicFeatured />;
+  if (reduced) return <StaticFeaturedList />;
+
+  return (
+    <div id="projekti">
+      <CinematicFeatured />
+      <MobileFeatured />
+    </div>
+  );
 }
