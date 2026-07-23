@@ -1,35 +1,23 @@
-import Header from "./components/Header";
-import Hero from "./components/Hero";
-import Statement from "./components/Statement";
-import WhyUs from "./components/WhyUs";
-import Systems from "./components/Systems";
-import Projects from "./components/Projects";
-import Technology from "./components/Technology";
-import Process from "./components/Process";
-import Faq from "./components/Faq";
-import Contact from "./components/Contact";
-import Footer from "./components/Footer";
-import { WaterlineRail } from "./components/common/Waterline";
+import RootLayout from "./layouts/RootLayout";
+import Home from "./pages/Home";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import NotFound from "./pages/NotFound";
 
-function App() {
-  return (
-    <>
-      <WaterlineRail />
-      <Header />
-      <main>
-        <Hero />
-        <Statement />
-        <WhyUs />
-        <Systems />
-        <Projects />
-        <Technology />
-        <Process />
-        <Faq />
-        <Contact />
-      </main>
-      <Footer />
-    </>
-  );
-}
+// vite-react-ssg route table. "/404" is a real, statically-generated page
+// (it prerenders to dist/404.html, which Vercel serves automatically for any
+// unmatched path on a static deployment) — "*" is the client-side fallback
+// so an in-app navigation to a bad path shows the same page post-hydration.
+const routes = [
+  {
+    path: "/",
+    Component: RootLayout,
+    children: [
+      { index: true, Component: Home },
+      { path: "pravila-privatnosti", Component: PrivacyPolicy },
+    ],
+  },
+  { path: "/404", Component: NotFound },
+  { path: "*", Component: NotFound },
+];
 
-export default App;
+export default routes;

@@ -2,12 +2,12 @@ import Reveal from "./common/Reveal";
 import Waterline from "./common/Waterline";
 
 const NAV = [
-  { href: "#sustavi", label: "Sustavi" },
-  { href: "#projekti", label: "Projekti" },
-  { href: "#tehnika", label: "Tehnika" },
-  { href: "#proces", label: "Proces" },
-  { href: "#faq", label: "FAQ" },
-  { href: "#kontakt", label: "Kontakt" },
+  { href: "/#sustavi", label: "Sustavi" },
+  { href: "/#projekti", label: "Projekti" },
+  { href: "/#tehnika", label: "Tehnika" },
+  { href: "/#proces", label: "Proces" },
+  { href: "/#faq", label: "FAQ" },
+  { href: "/#kontakt", label: "Kontakt" },
 ];
 
 export default function Footer() {
@@ -29,7 +29,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-travertino/35">Navigacija</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-travertino/50">Navigacija</p>
             <ul className="mt-5 space-y-3">
               {NAV.map((item) => (
                 <li key={item.href}>
@@ -42,7 +42,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-travertino/35">Kontakt</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-travertino/50">Kontakt</p>
             <ul className="mt-5 space-y-3 text-sm">
               <li>Bujska ulica 28c, 52470 Umag</li>
               <li>
@@ -57,8 +57,13 @@ export default function Footer() {
 
         <Waterline className="text-acqua/40" opacity={0.5} />
 
-        <div className="flex flex-col gap-4 py-8 text-xs text-travertino/30 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} Tempus Pool d.o.o., Umag. Sva prava pridržana.</p>
+        <div className="flex flex-col gap-4 py-8 text-xs text-travertino/50 sm:flex-row sm:items-center sm:justify-between">
+          <p className="flex flex-wrap items-center gap-x-2">
+            <span>© {new Date().getFullYear()} Tempus Pool d.o.o., Umag. Sva prava pridržana.</span>
+            <a href="/pravila-privatnosti" className="underline decoration-travertino/20 underline-offset-2 transition-colors hover:text-acqua">
+              Pravila privatnosti
+            </a>
+          </p>
           <p className="font-mono uppercase tracking-[0.14em]">Umag · Istra · Hrvatska</p>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import WaterBackdrop from "./common/WaterBackdrop";
@@ -45,9 +45,13 @@ export default function Statement() {
   statRefs.current = [];
   const registerStat = (el) => el && statRefs.current.push(el);
 
-  const [reduced] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
+  // Defaults false on every render so the first client paint matches the
+  // prerendered (SSG) HTML — corrected in an effect right after mount,
+  // which swaps layout as a normal update rather than a hydration mismatch.
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }, []);
 
   useLayoutEffect(() => {
     if (reduced) return;
@@ -154,7 +158,7 @@ export default function Statement() {
       >
         <span
           ref={registerStat}
-          className="font-mono text-[11px] uppercase tracking-[0.32em] text-travertino/40"
+          className="font-mono text-[11px] uppercase tracking-[0.32em] text-travertino/55"
         >
           Tempus Pool u brojkama
         </span>
@@ -182,7 +186,7 @@ export default function Statement() {
                 value={s.value}
                 label={s.label}
                 valueStyle={{ fontSize: "clamp(2.1rem, 4vw, 3.1rem)" }}
-                labelClassName="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-travertino/45"
+                labelClassName="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-travertino/55"
                 glow="soft"
               />
             </div>
@@ -201,7 +205,7 @@ export default function Statement() {
               label={s.label}
               valueStyle={{ fontSize: "clamp(1.35rem, 2vw, 1.7rem)" }}
               valueClassName="text-travertino/70"
-              labelClassName="mt-2 font-mono text-[9px] uppercase tracking-[0.16em] text-travertino/35"
+              labelClassName="mt-2 font-mono text-[9px] uppercase tracking-[0.16em] text-travertino/50"
               glow="none"
               row
             />

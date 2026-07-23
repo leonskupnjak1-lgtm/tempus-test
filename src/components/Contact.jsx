@@ -27,6 +27,7 @@ import Counter from "./common/Counter";
 import Reveal from "./common/Reveal";
 import SplitHeading from "./common/SplitHeading";
 import Waterline from "./common/Waterline";
+import SectionFade from "./common/SectionFade";
 import { INQUIRY_EVENT, inquiryLabel } from "@/lib/inquiry";
 
 const EASE = [0.16, 1, 0.3, 1];
@@ -86,7 +87,7 @@ function validateContact(raw) {
 const Field = forwardRef(function Field({ label, error, className = "", ...props }, ref) {
   return (
     <label className={`block ${className}`}>
-      <span className="font-mono text-[10px] uppercase tracking-wide text-travertino/45">{label}</span>
+      <span className="font-mono text-[10px] uppercase tracking-wide text-travertino/55">{label}</span>
       <input
         ref={ref}
         {...props}
@@ -105,12 +106,12 @@ function OptionCard({ label, icon: Icon, active, wide, onClick }) {
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`group flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left text-sm transition-colors ${
+      className={`group flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left text-sm transition-all duration-500 ease-out hover:-translate-y-0.5 ${
         wide ? "col-span-2" : ""
       } ${
         active
           ? "border-acqua/60 bg-acqua/10 text-acqua"
-          : "border-travertino/15 text-travertino/80 hover:border-acqua/35 hover:text-travertino"
+          : "border-transparent bg-travertino/[0.04] text-travertino/80 hover:border-acqua/30 hover:text-travertino"
       }`}
     >
       {Icon && (
@@ -300,7 +301,8 @@ export default function Contact() {
   ].filter((c) => c.value && c.step < currentStep);
 
   return (
-    <section id="kontakt" className="relative scroll-mt-24 overflow-hidden bg-notte py-28 text-travertino lg:py-36">
+    <section id="kontakt" className="relative scroll-mt-24 overflow-hidden bg-notte py-32 text-travertino lg:py-40">
+      <SectionFade from="var(--color-travertino-soft)" height="16vh" />
       <Waterline className="absolute inset-x-0 top-0 text-acqua/60" opacity={0.6} />
       <div
         className="pointer-events-none absolute inset-0"
@@ -315,11 +317,11 @@ export default function Contact() {
             </Reveal>
             <SplitHeading
               as="h2"
-              className="mt-5 font-display text-4xl font-light leading-tight tracking-tight sm:text-5xl"
+              className="mt-5 font-display text-5xl font-light leading-tight tracking-tight sm:text-6xl"
               lines={["Razgovarajmo o", { text: "vašem bazenu.", className: "italic text-acqua-soft" }]}
             />
             <Reveal delay={0.2}>
-              <p className="mt-6 max-w-md text-[15px] leading-relaxed text-travertino/60">
+              <p className="mt-6 max-w-md text-[15px] leading-[1.8] text-travertino/60">
                 Besplatna konzultacija i konkretan prijedlog za vaš prostor i budžet.
               </p>
             </Reveal>
@@ -333,7 +335,7 @@ export default function Contact() {
                   <IconPhone className="h-4 w-4" />
                 </span>
                 <div>
-                  <div className="font-mono text-[10px] uppercase tracking-wide text-travertino/40">Telefon</div>
+                  <div className="font-mono text-[10px] uppercase tracking-wide text-travertino/55">Telefon</div>
                   <div className="mt-0.5 text-[15px] transition-colors group-hover:text-acqua">+385 91 722 1000</div>
                 </div>
               </a>
@@ -342,7 +344,7 @@ export default function Contact() {
                   <IconMail className="h-4 w-4" />
                 </span>
                 <div>
-                  <div className="font-mono text-[10px] uppercase tracking-wide text-travertino/40">Email</div>
+                  <div className="font-mono text-[10px] uppercase tracking-wide text-travertino/55">Email</div>
                   <div className="mt-0.5 text-[15px] transition-colors group-hover:text-acqua">prodaja@tempus-pool.hr</div>
                 </div>
               </a>
@@ -351,7 +353,7 @@ export default function Contact() {
                   <IconClock className="h-4 w-4" />
                 </span>
                 <div>
-                  <div className="font-mono text-[10px] uppercase tracking-wide text-travertino/40">Radno vrijeme</div>
+                  <div className="font-mono text-[10px] uppercase tracking-wide text-travertino/55">Radno vrijeme</div>
                   <div className="mt-0.5 text-[15px]">Pon – Pet, 08:00 – 16:00</div>
                 </div>
               </div>
@@ -364,7 +366,7 @@ export default function Contact() {
                 </div>
                 {/* TODO: [POTVRDITI formulaciju s klijentom — tvrtka osnovana 2022.,
                     "godina iskustva u struci" odnosi se na iskustvo vodstva, ne tvrtke] */}
-                <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-travertino/40">
+                <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-travertino/55">
                   Godina iskustva u struci
                 </div>
               </div>
@@ -373,7 +375,7 @@ export default function Contact() {
                 <div className="font-display text-2xl font-light text-travertino">
                   <Counter to={31} />
                 </div>
-                <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-travertino/40">realiziran projekt</div>
+                <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-travertino/55">realiziran projekt</div>
               </div>
             </Reveal>
           </div>
@@ -388,7 +390,7 @@ export default function Contact() {
                     : { boxShadow: "0 0 0 0 rgba(47,191,163,0)" }
                 }
                 transition={highlight ? { duration: 1.2, ease: "easeInOut" } : { duration: 0.3 }}
-                className="relative overflow-hidden rounded-[28px] border border-travertino/12 bg-notte-soft/40 p-7 shadow-[0_60px_140px_-45px_rgba(0,0,0,0.8)] backdrop-blur-xl sm:p-10"
+                className="relative overflow-hidden rounded-[28px] border border-travertino/[0.08] bg-notte-soft/40 p-7 shadow-[0_40px_100px_-50px_rgba(0,0,0,0.6)] backdrop-blur-xl sm:p-10"
               >
                 <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-acqua/10 blur-[100px]" />
 
@@ -452,7 +454,7 @@ export default function Contact() {
 
                       <a
                         href="tel:+385917221000"
-                        className="group mt-7 inline-flex items-center gap-2.5 rounded-full border border-acqua/30 px-6 py-3 text-sm font-medium tracking-wide text-acqua transition-colors hover:border-acqua hover:bg-acqua/10"
+                        className="btn-lift group mt-7 inline-flex items-center gap-2.5 rounded-full border border-acqua/30 px-6 py-3 text-sm font-medium tracking-wide text-acqua transition-colors hover:border-acqua hover:bg-acqua/10"
                       >
                         <IconPhone className="h-4 w-4" />
                         +385 91 722 1000
@@ -472,7 +474,7 @@ export default function Contact() {
                               <IconChevron className="h-3 w-3 rotate-180" />
                             </button>
                           )}
-                          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-travertino/40">
+                          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-travertino/55">
                             Korak {currentStep} od {TOTAL_STEPS}
                           </span>
                         </div>
@@ -561,7 +563,7 @@ export default function Contact() {
                                   <button
                                     type="button"
                                     onClick={() => goNext()}
-                                    className="group inline-flex items-center gap-2 rounded-full bg-acqua px-6 py-2.5 text-sm font-medium tracking-wide text-notte transition-colors hover:bg-acqua-soft"
+                                    className="btn-lift group inline-flex items-center gap-2 rounded-full bg-acqua px-6 py-2.5 text-sm font-medium tracking-wide text-notte transition-colors hover:bg-acqua-soft"
                                   >
                                     Dalje
                                     <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -616,13 +618,20 @@ export default function Contact() {
                                 <button
                                   type="button"
                                   onClick={handleFinalSubmit}
-                                  className="group relative mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-acqua px-7 py-3.5 text-sm font-medium tracking-wide text-notte transition-colors hover:bg-acqua-soft sm:w-auto"
+                                  className="btn-lift group relative mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-acqua px-7 py-3.5 text-sm font-medium tracking-wide text-notte transition-colors hover:bg-acqua-soft sm:w-auto"
                                 >
                                   Pošaljite
                                   <span className="transition-transform group-hover:translate-x-1">→</span>
                                 </button>
-                                <p className="mt-3 text-[12px] text-travertino/40">
+                                <p className="mt-3 text-[12px] text-travertino/55">
                                   Javljamo se s konkretnim prijedlogom. Bez obveze.
+                                </p>
+                                <p className="mt-2 text-[11px] leading-relaxed text-travertino/50">
+                                  Slanjem pristajete da vas kontaktiramo u vezi upita.{" "}
+                                  <a href="/pravila-privatnosti" className="underline decoration-travertino/25 underline-offset-2 transition-colors hover:text-acqua">
+                                    Pravila privatnosti
+                                  </a>
+                                  .
                                 </p>
                               </div>
                             )}

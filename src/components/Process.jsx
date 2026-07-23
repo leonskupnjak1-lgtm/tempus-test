@@ -4,6 +4,7 @@ import { IconPhone, IconRuler, IconGauge, IconTrowel, IconDroplet } from "./icon
 import ImagePlate from "./common/ImagePlate";
 import Reveal from "./common/Reveal";
 import SplitHeading from "./common/SplitHeading";
+import SectionFade from "./common/SectionFade";
 
 const STEPS = [
   {
@@ -44,8 +45,9 @@ export default function Process() {
   const lineScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   return (
-    <section id="proces" className="scroll-mt-20 bg-travertino-soft py-28 lg:py-40">
-      <div className="mx-auto max-w-[1500px] px-6 lg:px-12">
+    <section id="proces" className="relative scroll-mt-20 bg-travertino-soft py-32 lg:py-44">
+      <SectionFade from="var(--color-notte)" />
+      <div className="relative mx-auto max-w-[1500px] px-6 lg:px-12">
         <div className="grid gap-16 lg:grid-cols-[1.05fr_0.85fr] lg:gap-14">
           <div>
             <div className="max-w-2xl">
@@ -54,7 +56,7 @@ export default function Process() {
               </Reveal>
               <SplitHeading
                 as="h2"
-                className="mt-5 font-display text-4xl font-light leading-tight tracking-tight text-ink sm:text-5xl"
+                className="mt-5 font-display text-5xl font-light leading-tight tracking-tight text-ink sm:text-6xl"
                 lines={["Pet koraka od ideje", { text: "do prve zaronjene.", className: "italic" }]}
               />
             </div>
@@ -67,10 +69,10 @@ export default function Process() {
                 aria-hidden="true"
               />
 
-              <div className="space-y-14">
+              <div className="space-y-16">
                 {STEPS.map(({ n, icon: Icon, title, text }, i) => (
-                  <Reveal key={n} delay={i * 0.05} className="relative flex gap-6 pl-0 sm:gap-8">
-                    <span className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-ink/15 bg-travertino-soft text-acqua sm:h-12 sm:w-12">
+                  <Reveal key={n} delay={i * 0.05} className="group relative flex gap-6 pl-0 sm:gap-8">
+                    <span className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-ink/15 bg-travertino-soft text-acqua transition-transform duration-700 ease-out group-hover:scale-110 sm:h-12 sm:w-12">
                       <Icon className="h-5 w-5" />
                     </span>
                     <div className="pt-1">
@@ -78,7 +80,7 @@ export default function Process() {
                         <span className="font-mono text-[11px] text-cemento">{n}</span>
                         <h3 className="font-display text-xl font-normal text-ink sm:text-2xl">{title}</h3>
                       </div>
-                      <p className="mt-2.5 max-w-md text-[15px] leading-relaxed text-ink/55">{text}</p>
+                      <p className="mt-3 max-w-md text-[15px] leading-[1.75] text-ink/65">{text}</p>
                     </div>
                   </Reveal>
                 ))}

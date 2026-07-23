@@ -1,0 +1,6 @@
+# TODO: update this URL (and public/sitemap.xml) to the production domain
+# together with SITE_URL in src/lib/site.js once it's live.
+User-agent: *
+Allow: /
+
+Sitemap: https://tempus-test.vercel.app/sitemap.xml

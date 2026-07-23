@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Raw video source for the hero frame-sequence pipeline (scripts/build-hero-frames.mjs) —
+# large binary input, already processed into public/frames + public/hero-loop.mp4.
+scripts/hero-source.mp4
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

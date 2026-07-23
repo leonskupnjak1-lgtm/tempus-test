@@ -7,7 +7,7 @@
 // those three ever touch the same CSS property as the crossfade, so they
 // compose without fighting each other for `transform`.
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion, AnimatePresence } from "motion/react";
@@ -105,7 +105,7 @@ const pad = (n) => String(n).padStart(2, "0");
 function Spec({ label, value, wide = false }) {
   return (
     <div className={wide ? "col-span-2" : ""}>
-      <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-travertino/35">{label}</dt>
+      <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-travertino/50">{label}</dt>
       <dd className="mt-1.5 font-display text-[15px] font-light leading-snug text-travertino">{value}</dd>
     </div>
   );
@@ -114,7 +114,7 @@ function Spec({ label, value, wide = false }) {
 function ProjectDetails({ p }) {
   return (
     <>
-      <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-travertino/40">Odabrani projekt</span>
+      <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-travertino/55">Odabrani projekt</span>
       <p className="mt-3 font-display text-xl italic leading-snug text-acqua-soft sm:text-2xl">{p.title}</p>
       <h3 className="mt-5 max-w-md text-balance font-display text-3xl font-light leading-[1.12] text-travertino sm:text-4xl">
         {p.heading}
@@ -166,10 +166,21 @@ function StaticFeaturedList() {
             <div key={p.key} className="grid grid-cols-1 items-center gap-10 lg:grid-cols-5 lg:gap-16">
               <div className="lg:col-span-3">
                 <div
-                  className="relative w-full overflow-hidden rounded-[32px] shadow-[0_60px_140px_-40px_rgba(0,0,0,0.75),0_0_0_1px_rgba(242,238,227,0.06)]"
+                  className="sheen group relative w-full overflow-hidden rounded-[32px] shadow-[0_40px_100px_-45px_rgba(0,0,0,0.6)]"
                   style={{ aspectRatio: "4 / 3" }}
                 >
-                  <img src={p.image} alt={`${p.title}, ${p.place}`} loading="lazy" className="h-full w-full object-cover" style={{ objectPosition: p.focal }} />
+                  <picture>
+                    <source srcSet={p.image.replace(/\.jpe?g$/i, ".webp")} type="image/webp" />
+                    <img
+                      src={p.image}
+                      alt={`${p.title}, ${p.place}`}
+                      width={1200}
+                      height={900}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.04]"
+                      style={{ objectPosition: p.focal }}
+                    />
+                  </picture>
                   <div
                     className="pointer-events-none absolute inset-0"
                     style={{ background: "linear-gradient(0deg, rgba(10,24,21,0.5) 0%, transparent 30%, transparent 78%, rgba(10,24,21,0.25) 100%)" }}
@@ -259,7 +270,7 @@ function CinematicFeatured() {
     const rect = box.getBoundingClientRect();
     const px = (e.clientX - rect.left) / rect.width - 0.5;
     const py = (e.clientY - rect.top) / rect.height - 0.5;
-    el.style.transform = `perspective(1400px) rotateX(${(-py * 5).toFixed(2)}deg) rotateY(${(px * 5).toFixed(2)}deg) scale(1.008)`;
+    el.style.transform = `perspective(1400px) rotateX(${(-py * 5).toFixed(2)}deg) rotateY(${(px * 5).toFixed(2)}deg) scale(1.018)`;
   }
 
   function handleMouseLeave() {
@@ -288,20 +299,26 @@ function CinematicFeatured() {
               ref={stageRef}
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
-              className="relative w-full overflow-hidden rounded-[32px] shadow-[0_60px_140px_-40px_rgba(0,0,0,0.75),0_0_0_1px_rgba(242,238,227,0.06)]"
+              className="relative w-full overflow-hidden rounded-[32px] shadow-[0_40px_100px_-45px_rgba(0,0,0,0.6)]"
               style={{ aspectRatio: "4 / 3" }}
             >
               <div ref={tiltRef} className="absolute inset-0 transition-transform duration-500 will-change-transform" style={{ transitionTimingFunction: EASE }}>
                 <div ref={parallaxRef} className="absolute inset-x-0 -top-[10%] h-[120%] w-full">
                   {FEATURED.map((p, i) => (
                     <div key={p.key} ref={(el) => (imgFrameRefs.current[i] = el)} className="absolute inset-0 h-full w-full">
-                      <img
-                        src={p.image}
-                        alt={`${p.title}, ${p.place}`}
-                        loading={i === 0 ? "eager" : "lazy"}
-                        className="h-full w-full object-cover [animation:project-zoom_9s_ease-in-out_infinite_alternate]"
-                        style={{ objectPosition: p.focal }}
-                      />
+                      <picture>
+                        <source srcSet={p.image.replace(/\.jpe?g$/i, ".webp")} type="image/webp" />
+                        <img
+                          src={p.image}
+                          alt={`${p.title}, ${p.place}`}
+                          width={1200}
+                          height={900}
+                          loading={i === 0 ? "eager" : "lazy"}
+                          fetchPriority={i === 0 ? "high" : undefined}
+                          className="h-full w-full object-cover [animation:project-zoom_9s_ease-in-out_infinite_alternate]"
+                          style={{ objectPosition: p.focal }}
+                        />
+                      </picture>
                     </div>
                   ))}
                 </div>
@@ -425,16 +442,21 @@ function MobileFeatured() {
             >
               <motion.div
                 variants={mobileImageVariants}
-                className="relative w-full overflow-hidden rounded-[26px] shadow-[0_40px_100px_-30px_rgba(0,0,0,0.75),0_0_0_1px_rgba(242,238,227,0.06)]"
+                className="relative w-full overflow-hidden rounded-[26px] shadow-[0_30px_70px_-35px_rgba(0,0,0,0.55)]"
                 style={{ aspectRatio: "16 / 10" }}
               >
-                <img
-                  src={p.image}
-                  alt={`${p.title}, ${p.place}`}
-                  loading={index === 0 ? "eager" : "lazy"}
-                  className="h-full w-full object-cover"
-                  style={{ objectPosition: p.focal }}
-                />
+                <picture>
+                  <source srcSet={p.image.replace(/\.jpe?g$/i, ".webp")} type="image/webp" />
+                  <img
+                    src={p.image}
+                    alt={`${p.title}, ${p.place}`}
+                    width={1200}
+                    height={750}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    className="h-full w-full object-cover"
+                    style={{ objectPosition: p.focal }}
+                  />
+                </picture>
                 <div
                   className="pointer-events-none absolute inset-0"
                   style={{ background: "linear-gradient(0deg, rgba(10,24,21,0.55) 0%, transparent 32%, transparent 78%, rgba(10,24,21,0.2) 100%)" }}
@@ -442,25 +464,21 @@ function MobileFeatured() {
               </motion.div>
 
               <motion.div variants={mobileTextVariants} className="mt-8">
-                <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-travertino/40">{p.title}</span>
+                <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-travertino/55">{p.title}</span>
                 <h3 className="mt-4 text-balance font-display text-[28px] font-light leading-[1.2] text-travertino">
                   {p.heading}
                 </h3>
                 <p className="mt-4 text-[15px] leading-[1.7] text-travertino/60">{p.description}</p>
               </motion.div>
 
-              <motion.dl variants={mobileContainerVariants} className="mt-10 flex flex-col gap-3">
+              <motion.dl variants={mobileContainerVariants} className="mt-10 divide-y divide-travertino/[0.08] border-t border-travertino/[0.08]">
                 {MOBILE_SPECS(p).map(({ icon: Icon, label, value }) => (
-                  <motion.div
-                    key={label}
-                    variants={mobileCardVariants}
-                    className="flex items-center gap-4 rounded-2xl border border-travertino/10 bg-travertino/[0.04] px-5 py-4 backdrop-blur-sm"
-                  >
-                    <Icon className="h-5 w-5 shrink-0 text-acqua" />
-                    <div>
-                      <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-travertino/40">{label}</dt>
-                      <dd className="mt-1 font-display text-[17px] font-light leading-snug text-travertino">{value}</dd>
-                    </div>
+                  <motion.div key={label} variants={mobileCardVariants} className="flex items-center gap-4 py-4">
+                    <dt className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.16em] text-travertino/55">
+                      <Icon className="h-4 w-4 shrink-0 text-acqua/70" />
+                      {label}
+                    </dt>
+                    <dd className="ml-auto font-display text-[16px] font-light leading-snug text-travertino">{value}</dd>
                   </motion.div>
                 ))}
               </motion.dl>
@@ -492,7 +510,7 @@ function MobileFeatured() {
               <IconChevron className="h-4 w-4" />
             </button>
           </div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-travertino/30">
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-travertino/50">
             Prijeđite prstom za sljedeći projekt
           </p>
         </div>
@@ -502,9 +520,10 @@ function MobileFeatured() {
 }
 
 export default function Projects() {
-  const [reduced] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }, []);
 
   if (reduced) return <StaticFeaturedList />;
 

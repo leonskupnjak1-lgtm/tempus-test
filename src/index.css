@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./fonts.css";
 
 @theme {
   /* Istrian coast, after dark — deep water, travertine, sand, one turquoise accent */
@@ -20,6 +21,7 @@
   --animate-drift: drift 26s ease-in-out infinite;
   --animate-draw: draw 2.4s ease forwards;
   --animate-ripple: ripple 9s ease-in-out infinite;
+  --animate-hero-arrow: hero-arrow 2s ease-in-out infinite;
 
   /* shadcn/ui semantic tokens, aliased onto the palette above rather than a
      second parallel color system — keeps copy-pasted shadcn primitives
@@ -50,6 +52,11 @@
 
 @keyframes draw {
   to { stroke-dashoffset: 0; }
+}
+
+@keyframes hero-arrow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
 }
 
 @keyframes ripple {
@@ -96,6 +103,42 @@ body {
 
 .font-mono {
   font-family: var(--font-mono);
+}
+
+/* Premium hover lift for buttons and pill CTAs — a small rise plus a soft
+   contact shadow, never a bounce. Applied instead of ad-hoc hover states so
+   every clickable surface on the site shares the same weight and timing. */
+.btn-lift {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px -18px rgba(0, 0, 0, 0.45);
+}
+.btn-lift:active {
+  transform: translateY(0);
+  transition-duration: 0.15s;
+}
+
+/* A single, slow light reflection that sweeps a card or photograph on
+   hover — the closest thing this site has to a signature micro-interaction.
+   Kept subtle (10% white at most) so it reads as glass/water sheen, not gloss. */
+.sheen {
+  position: relative;
+  isolation: isolate;
+}
+.sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, 0.14) 50%, transparent 58%);
+  transform: translateX(-140%);
+  transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sheen:hover::after {
+  transform: translateX(140%);
 }
 
 /* Fine paper-grain texture, used sparingly over dark and image-plate surfaces */

@@ -12,6 +12,7 @@ import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { requestInquiry } from "@/lib/inquiry";
 import Reveal from "./common/Reveal";
+import SectionFade from "./common/SectionFade";
 
 const EASE = "easeInOut";
 const DURATION = 0.55;
@@ -184,11 +185,14 @@ function buildOrbitPath() {
 const ORBIT_PATH = buildOrbitPath();
 
 function useIsDesktop() {
-  const [isDesktop, setIsDesktop] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches
-  );
+  // Starts false on every render (server and client) so the first client
+  // paint matches the prerendered HTML exactly — SSG has no viewport to read
+  // from. The real value is read in an effect, after hydration completes,
+  // so any correction happens as a normal post-mount update, not a mismatch.
+  const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
+    setIsDesktop(mq.matches);
     const handler = (e) => setIsDesktop(e.matches);
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
@@ -205,7 +209,7 @@ function Specs({ system }) {
     <div className="mt-6 grid grid-cols-3 divide-x divide-travertino/10 border-y border-travertino/10 py-4">
       {system.specs.map((s) => (
         <div key={s.label} className="px-4 first:pl-0">
-          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-travertino/35">{s.label}</p>
+          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-travertino/50">{s.label}</p>
           <p className="mt-1.5 font-display text-[15px] font-light leading-tight text-travertino">{s.value}</p>
         </div>
       ))}
@@ -234,7 +238,7 @@ function SystemDetails({ system, index }) {
       <div className="flex items-center gap-3">
         <span className="font-mono text-[11px] text-acqua">{pad(index + 1)}</span>
         <span className="h-px w-8 bg-travertino/20" />
-        <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-travertino/45">Sustav gradnje</span>
+        <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-travertino/55">Sustav gradnje</span>
       </div>
       <h3 className="mt-4 font-display text-3xl font-light leading-[1.05] text-travertino xl:text-4xl">{system.title}</h3>
       <p className="mt-4 max-w-md text-[14.5px] leading-relaxed text-travertino/60">{system.blurb}</p>
@@ -242,7 +246,7 @@ function SystemDetails({ system, index }) {
       <Specs system={system} />
 
       <div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-travertino/35">Prednosti</p>
+        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-travertino/50">Prednosti</p>
         <Advantages system={system} />
       </div>
 
@@ -250,7 +254,7 @@ function SystemDetails({ system, index }) {
         <Button
           type="button"
           onClick={() => requestInquiry(system.key)}
-          className="rounded-full bg-acqua px-7 text-notte hover:bg-acqua-soft"
+          className="btn-lift rounded-full bg-acqua px-7 text-notte hover:bg-acqua-soft"
         >
           Zatražite ponudu za {system.code.toLowerCase()} →
         </Button>
@@ -298,7 +302,10 @@ function OrbitNode({ system, index, isActive, onSelect }) {
           transition={{ duration: DURATION, ease: EASE }}
           className="relative h-full w-full overflow-hidden rounded-full border-2"
         >
-          <img src={system.image} alt="" className="h-full w-full object-cover" />
+          <picture>
+            <source srcSet={system.image.replace(/\.jpe?g$/i, ".webp")} type="image/webp" />
+            <img src={system.image} alt="" width={140} height={140} loading="lazy" className="h-full w-full object-cover" />
+          </picture>
         </motion.div>
       </motion.div>
     </motion.button>
@@ -325,7 +332,7 @@ function AmbientTint({ system }) {
 
 function HeroStage({ system }) {
   return (
-    <div className="relative mx-auto w-full max-w-[900px] overflow-hidden rounded-[28px] border border-travertino/10 shadow-[0_60px_140px_-40px_rgba(0,0,0,0.8),0_0_0_1px_rgba(242,238,227,0.05)]" style={{ aspectRatio: "16 / 9" }}>
+    <div className="sheen relative mx-auto w-full max-w-[900px] overflow-hidden rounded-[28px] shadow-[0_40px_90px_-40px_rgba(0,0,0,0.6)]" style={{ aspectRatio: "16 / 9" }}>
       <AnimatePresence>
         <motion.div
           key={system.key}
@@ -335,19 +342,25 @@ function HeroStage({ system }) {
           transition={{ duration: DURATION, ease: EASE }}
           className="absolute inset-0"
         >
-          <motion.img
-            src={system.detailImage}
-            alt={`${system.title} — izvedba`}
-            className="h-full w-full object-cover"
-            animate={{ scale: [1, 1.045, 1] }}
-            transition={{ duration: 20, repeat: Infinity, ease: EASE }}
-          />
+          <picture>
+            <source srcSet={system.detailImage.replace(/\.jpe?g$/i, ".webp")} type="image/webp" />
+            <motion.img
+              src={system.detailImage}
+              alt={`${system.title} — izvedba`}
+              width={1600}
+              height={900}
+              loading="lazy"
+              className="h-full w-full object-cover"
+              animate={{ scale: [1, 1.045, 1] }}
+              transition={{ duration: 20, repeat: Infinity, ease: EASE }}
+            />
+          </picture>
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(0deg,rgba(10,24,21,0.55)_0%,transparent_38%)]" />
         </motion.div>
       </AnimatePresence>
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-between px-6 py-4">
         <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-travertino/75">{system.code}</span>
-        <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-travertino/40">Izvedba</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-travertino/55">Izvedba</span>
       </div>
     </div>
   );
@@ -489,6 +502,7 @@ export default function Systems() {
       >
         <AmbientTint system={activeSystem} />
         <div className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(120%_90%_at_50%_0%,transparent_0%,var(--color-notte)_88%)]" />
+        <SectionFade from="var(--color-travertino)" height="14vh" />
 
         <div className="relative z-10 mx-auto flex w-full max-w-[1640px] flex-1 flex-col px-6 lg:min-h-0 lg:px-10 xl:px-14">
           <div className="flex shrink-0 flex-wrap items-end justify-between gap-4">
@@ -502,7 +516,7 @@ export default function Systems() {
                 </h2>
               </Reveal>
             </div>
-            <Reveal delay={0.2} className="font-mono text-[11px] uppercase tracking-[0.16em] text-travertino/35">
+            <Reveal delay={0.2} className="font-mono text-[11px] uppercase tracking-[0.16em] text-travertino/50">
               <span className="hidden lg:inline">Odaberite tehniku →</span>
               <span className="lg:hidden">Dodirnite za odabir →</span>
             </Reveal>

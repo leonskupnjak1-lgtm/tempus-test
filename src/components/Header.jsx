@@ -2,16 +2,46 @@ import { useEffect, useState } from "react";
 import { IconPhone } from "./icons/BlueprintIcons";
 
 const NAV = [
-  { href: "#sustavi", label: "Sustavi" },
-  { href: "#projekti", label: "Projekti" },
-  { href: "#tehnika", label: "Tehnika" },
-  { href: "#proces", label: "Proces" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/#sustavi", id: "sustavi", label: "Sustavi" },
+  { href: "/#projekti", id: "projekti", label: "Projekti" },
+  { href: "/#tehnika", id: "tehnika", label: "Tehnika" },
+  { href: "/#proces", id: "proces", label: "Proces" },
+  { href: "/#faq", id: "faq", label: "FAQ" },
 ];
+
+const NAV_IDS = NAV.map((item) => item.id);
+
+// Tracks which nav section currently owns the "active" band just under the
+// fixed header, so the nav can highlight it without any scroll-position math
+// of its own. No-ops gracefully on routes that don't have these section ids
+// (e.g. the privacy policy page) — activeId just stays null there.
+function useActiveSection(ids) {
+  const [activeId, setActiveId] = useState(null);
+
+  useEffect(() => {
+    const targets = ids.map((id) => document.getElementById(id)).filter(Boolean);
+    if (targets.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          setActiveId(visible[visible.length - 1].target.id);
+        }
+      },
+      { rootMargin: "-15% 0px -70% 0px", threshold: 0 }
+    );
+    targets.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [ids]);
+
+  return activeId;
+}
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const activeId = useActiveSection(NAV_IDS);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -27,7 +57,7 @@ export default function Header() {
       }`}
     >
       <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-5 lg:px-12">
-        <a href="#" className="flex items-center gap-3">
+        <a href="/" className="flex items-center gap-3">
           <svg width="26" height="26" viewBox="0 0 40 40" fill="none" aria-hidden="true">
             <path d="M6 26c2.8-2.8 5.6-2.8 8.4 0s5.6 2.8 8.4 0 5.6-2.8 8.4 0" stroke="var(--color-acqua)" strokeWidth="1.4" strokeLinecap="round" />
             <path d="M6 17c2.8-2.8 5.6-2.8 8.4 0s5.6 2.8 8.4 0 5.6-2.8 8.4 0" stroke="var(--color-travertino)" strokeWidth="1" strokeLinecap="round" opacity="0.4" />
@@ -40,7 +70,10 @@ export default function Header() {
             <a
               key={item.href}
               href={item.href}
-              className="font-mono text-[11px] uppercase tracking-[0.18em] text-travertino/70 transition-colors hover:text-acqua"
+              aria-current={activeId === item.id ? "true" : undefined}
+              className={`font-mono text-[11px] uppercase tracking-[0.18em] transition-colors hover:text-acqua ${
+                activeId === item.id ? "text-acqua" : "text-travertino/70"
+              }`}
             >
               {item.label}
             </a>
@@ -53,7 +86,7 @@ export default function Header() {
             +385 91 722 1000
           </a>
           <a
-            href="#kontakt"
+            href="/#kontakt"
             className="group flex items-center gap-2 border-b border-acqua/50 pb-0.5 font-mono text-[11px] uppercase tracking-[0.18em] text-acqua transition-colors hover:border-acqua"
           >
             Konzultacija
@@ -81,13 +114,16 @@ export default function Header() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="rounded-md px-2 py-3 font-mono text-sm uppercase tracking-wide text-travertino/80 hover:text-acqua"
+                aria-current={activeId === item.id ? "true" : undefined}
+                className={`rounded-md px-2 py-3 font-mono text-sm uppercase tracking-wide hover:text-acqua ${
+                  activeId === item.id ? "text-acqua" : "text-travertino/80"
+                }`}
               >
                 {item.label}
               </a>
             ))}
             <a
-              href="#kontakt"
+              href="/#kontakt"
               onClick={() => setOpen(false)}
               className="mt-3 border-b border-acqua/50 px-2 pb-2 font-mono text-[13px] uppercase tracking-[0.18em] text-acqua"
             >
