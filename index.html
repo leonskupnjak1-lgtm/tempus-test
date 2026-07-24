@@ -40,10 +40,36 @@
     <link rel="preload" as="font" type="font/woff2" href="/fonts/fraunces-300-normal-latin-ext.woff2" crossorigin />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/manrope-400-normal-latin-ext.woff2" crossorigin />
 
-    <!-- Hero poster is the LCP element on every viewport — it's the base
-         layer under the scroll-scrubbed canvas (see Hero.jsx) and the
-         entire fallback for prefers-reduced-motion / frame-load failure. -->
-    <link rel="preload" as="image" type="image/jpeg" href="/hero-poster.jpg" fetchpriority="high" />
+    <!-- LCP element on every viewport (see Hero.jsx). Most visitors get the
+         scroll-scrubbed canvas, whose base layer is the sequence's own first
+         frame (hero-001) — not hero-poster.jpg, which is the *finished* pool
+         shot and would otherwise flash in before the frames load. Only the
+         prefers-reduced-motion / frame-load-failure fallback still uses the
+         finished-pool poster, so it's preloaded conditionally on that query. -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      href="/frames-mobile/hero-001.webp"
+      fetchpriority="high"
+      media="(max-width: 767px) and (prefers-reduced-motion: no-preference)"
+    />
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      href="/frames/hero-001.webp"
+      fetchpriority="high"
+      media="(min-width: 768px) and (prefers-reduced-motion: no-preference)"
+    />
+    <link
+      rel="preload"
+      as="image"
+      type="image/jpeg"
+      href="/hero-poster.jpg"
+      fetchpriority="high"
+      media="(prefers-reduced-motion: reduce)"
+    />
 
     <!-- Test-domain safeguard: this build is also reachable at *.vercel.app
          previews. Keep those out of search results so they never compete

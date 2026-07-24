@@ -5,10 +5,11 @@
 // number here — the sticky positioning itself is plain CSS, not a GSAP pin,
 // so it degrades to a normal in-flow section if JS never runs.
 //
-// The poster image is always in the DOM as the base layer: it's what paints
-// before the frame loader finishes (no blank canvas flash, no CLS) and it's
-// also the entire fallback for prefers-reduced-motion and for a frame-load
-// failure — both routes render the exact same static section below.
+// The sequence's own first frame (hero-001) is always in the DOM as the base
+// layer: it's what paints before the frame loader finishes (no blank canvas
+// flash, no CLS, and no jump-to-finished-pool flash on refresh). The
+// finished-pool hero-poster.jpg is used only by the separate fallback for
+// prefers-reduced-motion and for a frame-load failure, rendered below.
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -410,16 +411,24 @@ export default function Hero() {
   return (
     <section ref={wrapperRef} className="relative w-full bg-notte" style={{ height: "400vh" }}>
       <div className="sticky top-0 h-[100svh] w-full overflow-hidden text-travertino">
-        <img
-          src="/hero-poster.jpg"
-          alt=""
-          aria-hidden="true"
-          width={1920}
-          height={1080}
-          fetchPriority="high"
-          decoding="sync"
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-        />
+        {/* Base layer under the canvas — the sequence's own first frame, not
+            hero-poster.jpg (the finished pool shot lives only in the
+            reduced-motion/frame-failure fallback below). Using the finished
+            shot here was the cause of a "last frame flashes on refresh" bug:
+            it painted before the frame loader replaced it. */}
+        <picture>
+          <source media="(max-width: 767px)" srcSet="/frames-mobile/hero-001.webp" />
+          <img
+            src="/frames/hero-001.webp"
+            alt=""
+            aria-hidden="true"
+            width={1920}
+            height={1080}
+            fetchPriority="high"
+            decoding="sync"
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+          />
+        </picture>
         <canvas ref={canvasRef} aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full" />
         <video
           ref={videoRef}
