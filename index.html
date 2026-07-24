@@ -40,19 +40,30 @@
     <link rel="preload" as="font" type="font/woff2" href="/fonts/fraunces-300-normal-latin-ext.woff2" crossorigin />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/manrope-400-normal-latin-ext.woff2" crossorigin />
 
-    <!-- LCP element on every viewport (see Hero.jsx). Most visitors get the
-         scroll-scrubbed canvas, whose base layer is the sequence's own first
-         frame (hero-001) — not hero-poster.jpg, which is the *finished* pool
-         shot and would otherwise flash in before the frames load. Only the
-         prefers-reduced-motion / frame-load-failure fallback still uses the
-         finished-pool poster, so it's preloaded conditionally on that query. -->
+    <!-- LCP element, split three ways by which hero actually mounts
+         (HeroSwitch.jsx): narrow+portrait gets MobileHero (a play-once
+         video, poster = its own first frame); everyone else (desktop/tablet,
+         and a narrow *landscape* phone, which still gets the desktop scrub
+         at the mobile frame budget) gets Hero's scroll-scrubbed canvas, whose
+         base layer is the frame sequence's own first frame. Neither uses
+         hero-poster.jpg / hero-mobile-poster.jpg (the *finished* pool shot)
+         — those are only for the reduced-motion / load-failure fallbacks,
+         preloaded conditionally on that query so we never fetch both. -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/jpeg"
+      href="/hero-mobile-poster-first.jpg"
+      fetchpriority="high"
+      media="(max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference)"
+    />
     <link
       rel="preload"
       as="image"
       type="image/webp"
       href="/frames-mobile/hero-001.webp"
       fetchpriority="high"
-      media="(max-width: 767px) and (prefers-reduced-motion: no-preference)"
+      media="(max-width: 767px) and (orientation: landscape) and (prefers-reduced-motion: no-preference)"
     />
     <link
       rel="preload"
@@ -66,9 +77,25 @@
       rel="preload"
       as="image"
       type="image/jpeg"
+      href="/hero-mobile-poster.jpg"
+      fetchpriority="high"
+      media="(max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: reduce)"
+    />
+    <link
+      rel="preload"
+      as="image"
+      type="image/jpeg"
       href="/hero-poster.jpg"
       fetchpriority="high"
-      media="(prefers-reduced-motion: reduce)"
+      media="(prefers-reduced-motion: reduce) and (min-width: 768px)"
+    />
+    <link
+      rel="preload"
+      as="image"
+      type="image/jpeg"
+      href="/hero-poster.jpg"
+      fetchpriority="high"
+      media="(prefers-reduced-motion: reduce) and (max-width: 767px) and (orientation: landscape)"
     />
 
     <!-- Test-domain safeguard: this build is also reachable at *.vercel.app

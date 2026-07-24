@@ -1,5 +1,5 @@
 import { Head } from "vite-react-ssg";
-import Hero from "../components/Hero";
+import HeroSwitch from "../components/HeroSwitch";
 import Statement from "../components/Statement";
 import WhyUs from "../components/WhyUs";
 import Systems from "../components/Systems";
@@ -19,7 +19,7 @@ export default function Home() {
         <script type="application/ld+json">{JSON.stringify(localBusinessSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
       </Head>
-      <Hero />
+      <HeroSwitch />
       <Statement />
       <WhyUs />
       <Systems />
