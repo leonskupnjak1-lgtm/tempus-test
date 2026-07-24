@@ -22,6 +22,7 @@ const VIDEO_HANDOFF_OUT = 0.965;
 const MAX_CONCURRENT_LOADS = 4;
 
 const pad3 = (n) => String(n).padStart(3, "0");
+const pad2 = (n) => String(n).padStart(2, "0");
 
 function smoothstep(p, a, b) {
   if (a === b) return p >= a ? 1 : 0;
@@ -64,6 +65,11 @@ const CAPTION_TIMING = [
 ];
 const FINAL_START = 0.72;
 const CROSSFADE_MARGIN = 0.035;
+
+// Mobile hero shows a compact four-step phase label (three construction
+// captions plus a closing "finished" state) instead of the desktop's
+// poetic closing line + CTA — the progress indicator counts against these.
+const MOBILE_PHASE_TITLES = [CAPTION_TIMING[0].title, CAPTION_TIMING[1].title, CAPTION_TIMING[2].title, "Završen bazen"];
 
 // The bottom scrim is full-strength while the frames are brightest (raw
 // concrete, overcast daylight) and eases down once the video's own blue-hour
@@ -108,6 +114,10 @@ export default function Hero() {
   const railFillRef = useRef(null);
   const railMarkerRefs = useRef([null, null, null, null]);
   const scrimRef = useRef(null);
+  const mobilePhaseRefs = useRef([null, null, null, null]);
+  const mobileScrimRef = useRef(null);
+  const mobileProgressTextRef = useRef(null);
+  const mobileProgressFillRef = useRef(null);
 
   const ctxRef = useRef(null);
   const basePathRef = useRef("/frames");
@@ -274,27 +284,35 @@ export default function Hero() {
       }
 
       CAPTION_TIMING.forEach((c, i) => {
-        setBlock(
-          phaseRefs.current[i],
-          band(p, c.start - CROSSFADE_MARGIN, c.start + CROSSFADE_MARGIN, c.end - CROSSFADE_MARGIN, c.end + CROSSFADE_MARGIN)
-        );
+        const opacity = band(p, c.start - CROSSFADE_MARGIN, c.start + CROSSFADE_MARGIN, c.end - CROSSFADE_MARGIN, c.end + CROSSFADE_MARGIN);
+        setBlock(phaseRefs.current[i], opacity);
+        setBlock(mobilePhaseRefs.current[i], opacity);
       });
 
-      setBlock(finalRef.current, band(p, FINAL_START - CROSSFADE_MARGIN, FINAL_START + CROSSFADE_MARGIN, null, null));
+      const finalOpacity = band(p, FINAL_START - CROSSFADE_MARGIN, FINAL_START + CROSSFADE_MARGIN, null, null);
+      setBlock(finalRef.current, finalOpacity);
+      setBlock(mobilePhaseRefs.current[3], finalOpacity);
 
       if (scrimRef.current) gsap.set(scrimRef.current, { opacity: scrimOpacityForP(p) });
+      if (mobileScrimRef.current) gsap.set(mobileScrimRef.current, { opacity: scrimOpacityForP(p) });
 
-      // Vertical progress rail: fill grows from the first caption's start
-      // through to the very end; each marker lights up for its own window.
+      // Vertical progress rail (desktop) / bottom progress bar (mobile):
+      // fill grows from the first caption's start through to the very end.
       const fillFraction = Math.min(1, Math.max(0, (p - CAPTION_TIMING[0].start) / (1 - CAPTION_TIMING[0].start)));
       if (railFillRef.current) gsap.set(railFillRef.current, { scaleY: fillFraction });
+      if (mobileProgressFillRef.current) gsap.set(mobileProgressFillRef.current, { scaleX: fillFraction });
 
       const markerBounds = [CAPTION_TIMING[0].start, CAPTION_TIMING[1].start, CAPTION_TIMING[2].start, FINAL_START, 1.001];
+      let mobileActiveIndex = 0;
       railMarkerRefs.current.forEach((el, i) => {
-        if (!el) return;
         const active = p >= markerBounds[i] && p < markerBounds[i + 1];
+        if (active) mobileActiveIndex = i;
+        if (!el) return;
         gsap.set(el, { color: active ? "var(--color-acqua)" : "rgba(255,255,255,0.5)" });
       });
+      if (mobileProgressTextRef.current) {
+        mobileProgressTextRef.current.textContent = `${pad2(mobileActiveIndex + 1)} / 04`;
+      }
     }
 
     function applyVideoHandoff(p) {
@@ -370,9 +388,9 @@ export default function Hero() {
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-[linear-gradient(190deg,rgba(10,24,21,0.15)_0%,rgba(10,24,21,0.6)_55%,rgba(10,24,21,0.92)_100%)]" />
-        <div className="relative z-10 px-6 pb-16 lg:px-12 lg:pb-20">
+        <div className="relative z-10 px-8 pb-16 lg:px-12 lg:pb-20">
           <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-acqua">Tempus Pool · Umag, Istra</p>
-          <h1 className="mt-6 max-w-4xl font-display text-[2.6rem] font-light leading-[1.05] tracking-tight sm:text-6xl lg:text-[5.2rem]">
+          <h1 className="mt-6 max-w-4xl font-display text-[44px] font-light leading-[1.1] tracking-tight sm:text-6xl lg:text-[5.2rem]">
             Bazen nije dodatak vrtu. <span className="italic text-acqua-soft">Razlog je da u njemu ostanete.</span>
           </h1>
           <div className="mt-10 flex flex-wrap items-center gap-x-10 gap-y-4">
@@ -445,7 +463,7 @@ export default function Hero() {
             frames alike (a plain travertino line disappears against the
             white villa wall in phase 1). */}
         <div
-          className="pointer-events-none absolute left-4 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-9 lg:left-8 lg:gap-11"
+          className="pointer-events-none absolute left-4 top-1/2 z-10 hidden -translate-y-1/2 flex-col items-center gap-9 md:flex lg:left-8 lg:gap-11"
           aria-hidden="true"
         >
           <div className="absolute left-1/2 top-2 bottom-2 w-[3px] -translate-x-1/2 bg-black/40 blur-[2px]" />
@@ -463,11 +481,70 @@ export default function Hero() {
           ))}
         </div>
 
+        {/* Mobile-only readability scrim behind the lower-third text block —
+            simple bottom-anchored gradient (no left-radial pool needed since
+            the mobile block spans full width) that eases down in strength
+            with the same curve as the desktop scrim. */}
+        <div
+          ref={mobileScrimRef}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-[58%] md:hidden"
+          style={{
+            background:
+              "linear-gradient(to top, rgba(6,16,14,0.85) 0%, rgba(6,16,14,0.6) 34%, rgba(6,16,14,0.18) 68%, transparent 100%)",
+          }}
+        />
+
+        {/* Dedicated mobile hero content — not a scaled-down desktop layout.
+            Kicker + headline stay put in the lower third; only the active
+            construction phase crossfades beneath them, and a compact "01 /
+            04" + hairline bar (fed from the same scroll progress as the
+            desktop rail) replaces the vertical timeline entirely. */}
+        <div className="pointer-events-none absolute inset-x-0 z-10 px-8 md:hidden" style={{ bottom: "9vh" }}>
+          <div className="max-w-[90%]">
+            <p
+              className="font-mono text-[10px] uppercase text-acqua"
+              style={{ letterSpacing: "0.34em", textShadow: "0 1px 2px rgba(0,0,0,0.45), 0 8px 28px rgba(0,0,0,0.4)" }}
+            >
+              Tempus Pool · Umag, Istra
+            </p>
+            <h1
+              className="mt-4 font-display text-[44px] font-light leading-[1.12] tracking-tight"
+              style={{ textShadow: "0 1px 2px rgba(0,0,0,0.45), 0 8px 28px rgba(0,0,0,0.4)" }}
+            >
+              Bazen nije dodatak vrtu.
+            </h1>
+
+            <div className="relative mt-5 min-h-[26px]">
+              {MOBILE_PHASE_TITLES.map((title, i) => (
+                <p
+                  key={title}
+                  ref={(el) => (mobilePhaseRefs.current[i] = el)}
+                  className="absolute inset-x-0 top-0 font-display text-[15px] font-light uppercase leading-snug tracking-[0.08em] text-acqua-soft opacity-0"
+                  style={{ textShadow: "0 1px 2px rgba(0,0,0,0.45), 0 6px 20px rgba(0,0,0,0.4)" }}
+                >
+                  {title}
+                </p>
+              ))}
+            </div>
+
+            <div className="mt-7 flex items-center gap-3">
+              <span ref={mobileProgressTextRef} className="font-mono text-[10px] tracking-[0.2em] text-travertino/70">
+                01 / 04
+              </span>
+              <span className="relative h-px w-14 overflow-hidden bg-white/25">
+                <span ref={mobileProgressFillRef} className="absolute inset-y-0 left-0 w-full origin-left scale-x-0 bg-acqua" />
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Single anchored text block — left edge matches the header's
             container/logo, bottom fixed at 10vh. Every scroll state
             (kicker+h1, the three captions, the final line) renders inside
-            this same box and only ever crossfades in place. */}
-        <div className="pointer-events-none absolute inset-x-0 z-10" style={{ bottom: "10vh" }}>
+            this same box and only ever crossfades in place. Desktop/tablet
+            only — mobile gets its own dedicated layout above. */}
+        <div className="pointer-events-none absolute inset-x-0 z-10 hidden md:block" style={{ bottom: "10vh" }}>
           <div className="mx-auto max-w-[1600px] px-6 lg:px-12">
             <div className="relative w-full max-w-[85vw] md:max-w-[45vw]">
               <div className="relative min-h-[220px] sm:min-h-[260px] lg:min-h-[300px]">
